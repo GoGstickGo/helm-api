@@ -1,0 +1,7 @@
+name: iac
+description: containerRegistry
+runtime: go
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: go

@@ -1,0 +1,66 @@
+image:
+  repository: mariadb
+  tag: latest
+  pullPolicy: Alway
+
+# Set to true to disable authentication
+noAuth: true
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: mariadb-sa
+
+replicas: 1
+
+database:
+  name: "myapp"
+
+persistence:
+  size: "10Gi"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 50m
+    memory: 125Mi
+
+probes:
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+  readiness:
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+
+# Initialize database with custom scripts
+initScripts:
+  01-create-tables.sql: |
+    CREATE TABLE IF NOT EXISTS users (
+      id INT PRIMARY KEY,
+      name VARCHAR(255)
+    );
+  02-insert-data.sql: |
+    INSERT INTO users (id, name) VALUES (1, 'admin');
+
+
+#nodeSelector:
+#  node.kubernetes.io/instance-type : "k3s"
+
+#affinity:
+#  nodeAffinity:
+#    requiredDuringSchedulingIgnoredDuringExecution:
+#      nodeSelectorTerms:
+#      - matchExpressions:
+#        - key: topology.kubernetes.io/zone
+#          operator: In
+#          values:
+#          - us-east-1c
