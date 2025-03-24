@@ -1,0 +1,63 @@
+replicaCount: 1
+
+image:
+  repository: fra.vultrcr.com/activatedpowerconduit/helm-api:latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8080
+
+serviceAccount:
+  create: true
+  name: helm-api
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1000Mi
+  requests:
+    cpu: 10m
+    memory: 128Mi
+
+readinessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+  successThreshold: 1
+  timeoutSeconds: 5
+  httpGet:
+    path: /health-check
+    port: 8080
+
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  failureThreshold: 3
+  successThreshold: 1
+  timeoutSeconds: 5
+  httpGet:
+    path: /health-check
+    port: 8080
+
+env:
+  - name: LOG_LEVEL
+    value: "info"
+  - name: HELM_API_NAMESPACE
+    value: "default"
+  - name: HELM_API_CREATE_API_KEY
+    secretRef:
+      key: CREATE_API_KEY  
+  - name: HELM_API_DELETE_API_KEY
+    secretRef:
+      key: DELETE_API_KEY
+  - name: HELM_API_UPDATE_API_KEY
+    secretRef:
+      key: UPDATE_API_KEY
+
+
+pdb:
+  create: false
+
+autoscaling:
+  create: false
